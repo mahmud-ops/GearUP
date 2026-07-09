@@ -1,0 +1,16 @@
+model Rental_orders {
+  id String @id @default(uuid())
+
+  customerId String
+  customer   Users  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  startDate DateTime
+  endDate   DateTime
+
+  totalAmount Decimal @db.Decimal(10, 2)
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  rentalOrderItems RentalOrderItems[]
+  reviews          Reviews[]
+}
