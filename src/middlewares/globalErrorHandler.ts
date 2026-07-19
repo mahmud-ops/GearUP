@@ -1,5 +1,4 @@
 import {
-  response,
   type NextFunction,
   type Request,
   type Response,
@@ -12,7 +11,7 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  response.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+  res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
     success: false,
     statusCode: httpStatus.INTERNAL_SERVER_ERROR,
     message: error.message,
