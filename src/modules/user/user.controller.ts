@@ -54,7 +54,7 @@ const updateCurrentUser = catchAsync(
     sendResponse(res, {
       success: true,
       statusCode: httpstatus.OK,
-      message: "User updated successfully.",
+      message: "User updated successfully. Your account information has changed. Please log in again to continue.",
       data: result,
     });
   },

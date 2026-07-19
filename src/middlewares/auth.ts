@@ -45,24 +45,21 @@ export const auth = (...requiredRoles: Role[]) => {
       });
     }
 
-    const user = await prisma.users.findFirstOrThrow({
+    const user = await prisma.users.findUnique({
       where: {
         id,
-        name,
-        email,
-        role,
       },
     });
 
     if (!user) throw new Error("User not found , please log in.");
     if (user.status === "SUSPENDED")
       throw new Error("Your account is suspended");
-    
+
     req.user = {
-      id,
-      name,
-      email,
-      role,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
     };
 
     next();

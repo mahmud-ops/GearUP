@@ -1,15 +1,13 @@
 import express, {
   urlencoded,
-  type Application,
-  type Request,
-  type Response,
+  type Application
 } from "express";
 
 import cookieParser from "cookie-parser";
-import { userRouter } from "./modules/user/user.route";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 import { authRouter } from "./modules/auth/auth.route";
-// import { authRouter } from "./modules/auth/auth.route";
+import { categoryRouter } from "./modules/category/category.route";
+import { userRouter } from "./modules/user/user.route";
 
 const app: Application = express();
 
@@ -20,7 +18,8 @@ app.use(cookieParser());
 
 // routes
 app.use("/api/users", userRouter);
-app.use("/api/auth",authRouter)
+app.use("/api/auth",authRouter);
+app.use("/api/categories",categoryRouter);
 
 //error handlers
 app.use(globalErrorHandler);
