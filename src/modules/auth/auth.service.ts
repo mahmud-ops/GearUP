@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../../lib/prisma";
-import { createToken } from "../../utils/jwtUtil";
 import config from "../../config";
 import type { SignOptions } from "jsonwebtoken";
+import { jwtUtils } from "../../utils/jwtUtil";
 
 interface ILoginPayload {
   email: string;
@@ -35,7 +35,7 @@ const loginUser = async (payload: ILoginPayload) => {
     role: user.role,
   };
 
-  const accessToken = createToken(
+  const accessToken = jwtUtils.createToken(
     jwtPayload,
     config.jwt_access_secret as string,
     config.jwt_access_expires_in as SignOptions,
