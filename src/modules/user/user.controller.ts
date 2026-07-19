@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { userService } from "./user.service";
 import { sendResponse } from "../../utils/sendResponse";
 import httpstatus from "http-status";
@@ -15,8 +15,23 @@ const createUser = catchAsync(async (req: Request, res: Response) => {
     message: "User registered successfully.",
     data: result,
   });
-})
+});
+
+const getCurrentUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user?.id;
+    const result = await userService.getCurrentUser(userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpstatus.OK,
+      message: "Fetched user successfully.",
+      data: result,
+    });
+  },
+);
 
 export const userController = {
   createUser,
+  getCurrentUser,
 };

@@ -43,6 +43,28 @@ const createUser = async (payload: ICreateUser) => {
   return user;
 };
 
+const getCurrentUser = async (userId: string) => {
+  const user = await prisma.users.findUnique({
+    where: {
+      id: userId,
+    },
+    omit: {
+      password: true,
+    },
+    include: {
+      gearItems: true,
+      rentalOrders: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  return user;
+};
+
 export const userService = {
   createUser,
+  getCurrentUser,
 };

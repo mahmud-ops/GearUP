@@ -37,7 +37,7 @@ export const auth = (...requiredRoles: Role[]) => {
     const { id, name, email, role } = verifiedToken;
 
     if (requiredRoles.length && !requiredRoles.includes(role)) {
-      sendResponse(res, {
+      return sendResponse(res, {
         success: false,
         statusCode: httpstatus.FORBIDDEN,
         message: "you don't have access to this resource.",
