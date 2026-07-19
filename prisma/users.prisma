@@ -11,6 +11,7 @@ model Users {
   gearItems    GearItems[]
   rentalOrders Rental_orders[]
   reviews      Reviews[]
+  payments     Payment[]
 }
 
 enum Role {
