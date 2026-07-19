@@ -55,7 +55,9 @@ export const auth = (...requiredRoles: Role[]) => {
     });
 
     if (!user) throw new Error("User not found , please log in.");
-
+    if (user.status === "SUSPENDED")
+      throw new Error("Your account is suspended");
+    
     req.user = {
       id,
       name,

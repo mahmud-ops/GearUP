@@ -90,7 +90,7 @@ const updateCurrentUser = async (
   if (!user) {
     throw new Error("User not found.");
   }
-
+  
   const updatedUser = await prisma.users.update({
     where: {
       id: userId,
@@ -98,6 +98,7 @@ const updateCurrentUser = async (
     data: payload,
     omit: {
       password: true,
+      status: true,
     },
   });
 
