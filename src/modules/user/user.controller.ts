@@ -60,9 +60,49 @@ const updateCurrentUser = catchAsync(
   },
 );
 
+const getUserById = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = req.params;
+
+    if (typeof userId !== "string") {
+      throw new Error("Invalid user id.");
+    }
+
+    const result = await userService.getUserById(userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpstatus.OK,
+      message: "Fetched user successfully.",
+      data: result,
+    });
+  },
+);
+
+const suspendUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = req.params;
+
+    if (typeof userId !== "string") {
+      throw new Error("Invalid user id.");
+    }
+
+    const result = await userService.suspendUser(userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpstatus.OK,
+      message: "User suspended successfully.",
+      data: result,
+    });
+  },
+);
+
 export const userController = {
   createUser,
   getCurrentUser,
   getAllUsers,
-  updateCurrentUser
+  getUserById,
+  updateCurrentUser,
+  suspendUser
 };

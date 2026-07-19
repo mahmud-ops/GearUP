@@ -90,7 +90,7 @@ const updateCurrentUser = async (
   if (!user) {
     throw new Error("User not found.");
   }
-  
+
   const updatedUser = await prisma.users.update({
     where: {
       id: userId,
@@ -98,7 +98,49 @@ const updateCurrentUser = async (
     data: payload,
     omit: {
       password: true,
-      status: true,
+    },
+  });
+
+  return updatedUser;
+};
+
+const getUserById = async (userId: string) => {
+  const user = await prisma.users.findUnique({
+    where: {
+      id: userId,
+    },
+    omit: {
+      password: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  return user;
+};
+
+const suspendUser = async (userId: string) => {
+  const user = await prisma.users.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  const updatedUser = await prisma.users.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      status: "SUSPENDED",
+    },
+    omit: {
+      password: true,
     },
   });
 
@@ -109,5 +151,7 @@ export const userService = {
   createUser,
   getCurrentUser,
   getAllUsers,
+  getUserById,
   updateCurrentUser,
+  suspendUser,
 };

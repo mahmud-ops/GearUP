@@ -12,10 +12,11 @@ router.get(
   userController.getCurrentUser,
 );
 router.get("/", auth(Role.ADMIN), userController.getAllUsers);
+router.get("/:userId", auth(Role.ADMIN), userController.getUserById);
 router.patch(
   "/me",
   auth(Role.ADMIN, Role.CUSTOMER, Role.PROVIDER),
   userController.updateCurrentUser,
 );
-
+router.patch("/:userId", auth(Role.ADMIN), userController.suspendUser);
 export const userRouter = router;
