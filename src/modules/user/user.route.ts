@@ -11,5 +11,6 @@ router.get(
   auth(Role.ADMIN, Role.CUSTOMER, Role.PROVIDER),
   userController.getCurrentUser,
 );
+router.get("/",auth(Role.ADMIN),userController.getAllUsers)
 
 export const userRouter = router;

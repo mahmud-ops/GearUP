@@ -5,7 +5,7 @@ import config from "../../config";
 import { use } from "react";
 
 const createUser = async (payload: ICreateUser) => {
-  const { name, email, password } = payload;
+  const { name, email, password, role } = payload;
 
   const isUserExist = await prisma.users.findUnique({
     where: {
@@ -27,6 +27,7 @@ const createUser = async (payload: ICreateUser) => {
       name,
       email,
       password: hashedPassword,
+      role: role ?? "CUSTOMER",
     },
   });
 
@@ -64,7 +65,13 @@ const getCurrentUser = async (userId: string) => {
   return user;
 };
 
+const getAllUsers = async () => {
+  const users = await prisma.users.findMany();
+  return users;
+};
+
 export const userService = {
   createUser,
   getCurrentUser,
+  getAllUsers,
 };

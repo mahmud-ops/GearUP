@@ -31,7 +31,21 @@ const getCurrentUser = catchAsync(
   },
 );
 
+const getAllUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await userService.getAllUsers();
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpstatus.OK,
+      message: "Fetched all users successfully.",
+      data: result,
+    });
+  },
+);
+
 export const userController = {
   createUser,
   getCurrentUser,
+  getAllUsers,
 };
