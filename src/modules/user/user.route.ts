@@ -11,6 +11,12 @@ router.get(
   auth(Role.ADMIN, Role.CUSTOMER, Role.PROVIDER),
   userController.getCurrentUser,
 );
-router.get("/",auth(Role.ADMIN),userController.getAllUsers)
+router.get("/", auth(Role.ADMIN), userController.getAllUsers);
+router.patch(
+  "/me",
+  auth(Role.ADMIN, Role.CUSTOMER, Role.PROVIDER),
+  userController.updateCurrentUser,
+);
+
 
 export const userRouter = router;

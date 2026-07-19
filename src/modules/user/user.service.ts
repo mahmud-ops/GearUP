@@ -1,8 +1,7 @@
 import bcrypt from "bcryptjs";
+import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import type { ICreateUser } from "./user.interface";
-import config from "../../config";
-import { use } from "react";
 
 const createUser = async (payload: ICreateUser) => {
   const { name, email, password, role } = payload;
@@ -66,12 +65,48 @@ const getCurrentUser = async (userId: string) => {
 };
 
 const getAllUsers = async () => {
-  const users = await prisma.users.findMany();
+  const users = await prisma.users.findMany({
+    omit: {
+      password: true,
+    },
+  });
   return users;
+};
+
+const updateCurrentUser = async (
+  userId: string,
+  payload: {
+    name: string;
+    email: string;
+    password: string;
+  },
+) => {
+  const user = await prisma.users.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  const updatedUser = await prisma.users.update({
+    where: {
+      id: userId,
+    },
+    data: payload,
+    omit: {
+      password: true,
+    },
+  });
+
+  return updatedUser;
 };
 
 export const userService = {
   createUser,
   getCurrentUser,
   getAllUsers,
+  updateCurrentUser,
 };
