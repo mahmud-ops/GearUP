@@ -32,7 +32,7 @@ const getAllCategory = catchAsync(
   },
 );
 
-const getSingleCategory = catchAsync(async (req: Request, res: Response) => {
+const getSingleCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { slug } = req.params;
 
   if (typeof slug !== "string") {
@@ -49,7 +49,7 @@ const getSingleCategory = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const updateCategory = catchAsync(async (req: Request, res: Response) => {
+const updateCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { slug } = req.params;
 
   if (typeof slug !== "string") throw new Error("Invalid slug");
@@ -64,9 +64,25 @@ const updateCategory = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deleteCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { slug } = req.params;
+
+  if (typeof slug !== "string") throw new Error("Invalid slug");
+
+  const result = await categoryService.deleteCategory(slug);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Category deleted successfully.",
+    data: result,
+  });
+});
+
 export const categoryController = {
   createCategory,
   getAllCategory,
   getSingleCategory,
   updateCategory,
+  deleteCategory,
 };

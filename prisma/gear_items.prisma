@@ -19,3 +19,5 @@ model GearItems {
 
   @@map("Gear items")
 }
+
+// Now I need some dummy data for each category. Each category will have 3 gear items. It will take name, description, dailyRate, available quantities, and example image link. It will also take the category ID. 

@@ -61,11 +61,38 @@ const updateCategory = async (
     },
   });
 
+  const updateData = {
+    ...payload,
+    ...(payload.name && {
+      slug: slugify(payload.name, {
+        lower: true,
+        strict: true,
+        trim: true,
+      }),
+    }),
+  };
+
   const result = await prisma.categories.update({
     where: {
       id: category.id,
     },
-    data: payload,
+    data: updateData,
+  });
+
+  return result;
+};
+
+const deleteCategory = async (slug: string) => {
+  const category = await prisma.categories.findFirstOrThrow({
+    where: {
+      slug,
+    },
+  });
+
+  const result = await prisma.categories.delete({
+    where: {
+      id: category.id,
+    },
   });
 
   return result;
@@ -75,5 +102,6 @@ export const categoryService = {
   createCategory,
   getAllCategory,
   getSingleCategory,
-  updateCategory
+  updateCategory,
+  deleteCategory,
 };
