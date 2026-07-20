@@ -1,10 +1,10 @@
 model Users {
-  id       String @id @default(uuid())
+  id       String     @id @default(uuid())
   name     String
-  email    String @unique()
+  email    String     @unique()
   password String
-  role     Role   @default(CUSTOMER)
-  status  UserStatus @default(ACTIVE)
+  role     Role       @default(CUSTOMER)
+  status   UserStatus @default(ACTIVE)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
