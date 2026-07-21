@@ -1,7 +1,4 @@
-import express, {
-  urlencoded,
-  type Application
-} from "express";
+import express, { urlencoded, type Application } from "express";
 
 import cookieParser from "cookie-parser";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
@@ -9,6 +6,7 @@ import { authRouter } from "./modules/auth/auth.route";
 import { categoryRouter } from "./modules/category/category.route";
 import { userRouter } from "./modules/user/user.route";
 import { gearItemsRouter } from "./modules/gearItems/gearItems.route";
+import { rentalOrdersRouter } from "./modules/rentalOrder/rentalorder.route";
 
 const app: Application = express();
 
@@ -19,9 +17,10 @@ app.use(cookieParser());
 
 // routes
 app.use("/api/users", userRouter);
-app.use("/api/auth",authRouter);
-app.use("/api/categories",categoryRouter);
-app.use("/api/gear_items",gearItemsRouter)
+app.use("/api/auth", authRouter);
+app.use("/api/categories", categoryRouter);
+app.use("/api/gear_items", gearItemsRouter);
+app.use("/api/rental_orders", rentalOrdersRouter);
 
 //error handlers
 app.use(globalErrorHandler);
