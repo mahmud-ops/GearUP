@@ -1,4 +1,4 @@
-import type { GearItems } from "../../../generated/prisma/browser";
+import type { GearItems, Role } from "../../../generated/prisma/browser";
 import { prisma } from "../../lib/prisma";
 
 interface IRentalOrderPayload {
@@ -22,58 +22,84 @@ const createRentalOrder = async (
     (endDate.getTime() - startDate.getTime()) / millisecondsPerDay,
   );
 
-  // Get all requested gear items
-  const gearItems: GearItems[] = await prisma.gearItems.findMany({
-    where: {
-      id: {
-        in: payload.items.map((i) => i.gearItemId),
-      },
-    },
-  });
-
-  let totalDailyRate = 0;
-
-  for (const item of payload.items) {
-    const gear = gearItems.find((g) => g.id === item.gearItemId);
-
-    if (!gear) {
-      throw new Error("Gear item not found.");
-    }
-
-    totalDailyRate += Number(gear.dailyRate) * item.quantity;
-  }
-
-  const totalPrice = totalDailyRate * days;
-
-  const order = await prisma.rental_orders.create({
-    data: {
-      customerId: userId,
-      startDate,
-      endDate,
-      totalAmount: totalPrice,
-
-      rentalOrderItems: {
-        create: payload.items.map((item) => {
-          const gear = gearItems.find((g) => g.id === item.gearItemId)!;
-
-          return {
-            gearItemId: gear.id,
-            quantity: item.quantity,
-            dailyRate: gear.dailyRate,
-            totalPrice: Number(gear.dailyRate) * item.quantity * days,
-          };
-        }),
-      },
-    },
-    include: {
-      customer: {
-        omit: {
-          password: true,
+  const order = await prisma.$transaction(async (tx) => {
+    // Get all requested gear items
+    const gearItems: GearItems[] = await tx.gearItems.findMany({
+      where: {
+        id: {
+          in: payload.items.map((i) => i.gearItemId),
         },
       },
+    });
+
+    let totalDailyRate = 0;
+
+    for (const item of payload.items) {
+      const gear = gearItems.find((g) => g.id === item.gearItemId);
+
+      if (!gear) {
+        throw new Error("Gear item not found.");
+      }
+
+      totalDailyRate += Number(gear.dailyRate) * item.quantity;
+    }
+
+    const totalPrice = totalDailyRate * days;
+
+    return await tx.rental_orders.create({
+      data: {
+        customerId: userId,
+        startDate,
+        endDate,
+        totalAmount: totalPrice,
+
+        rentalOrderItems: {
+          create: payload.items.map((item) => {
+            const gear = gearItems.find((g) => g.id === item.gearItemId)!;
+
+            return {
+              gearItemId: gear.id,
+              quantity: item.quantity,
+              dailyRate: gear.dailyRate,
+              totalPrice: Number(gear.dailyRate) * item.quantity * days,
+            };
+          }),
+        },
+      },
+      include: {
+        customer: {
+          omit: {
+            password: true,
+          },
+        },
+        rentalOrderItems: {
+          include: {
+            item: true,
+          },
+        },
+      },
+    });
+  });
+
+  return order;
+};
+
+const getMyRentalOrders = async (userId: string) => {
+  const order = await prisma.rental_orders.findMany({
+    where: {
+      customerId: userId,
+    },
+    include: {
       rentalOrderItems: {
-        include: {
-          item: true,
+        select: {
+          item: {
+            select: {
+              name: true,
+              image: true,
+              dailyRate: true,
+            },
+          },
+          quantity: true,
         },
       },
     },
@@ -82,20 +108,29 @@ const createRentalOrder = async (
   return order;
 };
 
-const getMyRentalOrders = async (userId: string, role: string) => {
-  // TODO
-};
-
 const getAllRentalOrders = async () => {
-  // TODO
+  const orders = await prisma.rental_orders.findMany({
+    include: {
+      rentalOrderItems: true,
+    },
+  });
+
+  return orders;
 };
 
-const getSingleRentalOrder = async (
-  id: string,
-  userId: string,
-  role: string,
-) => {
-  // TODO
+const getSingleRentalOrder = async (id: string, userId: string, role: Role) => {
+  const order = await prisma.rental_orders.findUnique({
+    where: {
+      id: id,
+    },
+  });
+
+  if (role !== "ADMIN" && userId !== order?.customerId) {
+    throw new Error("You don't have access to this resource.");
+    return null;
+  }
+
+  return order;
 };
 
 const updateRentalOrder = async (

@@ -23,10 +23,7 @@ const createRentalOrder = catchAsync(
 
 const getMyRentalOrders = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await rentalOrdersService.getMyRentalOrders(
-      req.user.userId,
-      req.user.role,
-    );
+    const result = await rentalOrdersService.getMyRentalOrders(req.user?.id);
 
     sendResponse(res, {
       success: true,
@@ -56,7 +53,7 @@ const getSingleRentalOrder = catchAsync(
 
     const result = await rentalOrdersService.getSingleRentalOrder(
       id as string,
-      req.user.userId,
+      req.user?.id,
       req.user.role,
     );
 
