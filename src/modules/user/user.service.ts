@@ -53,7 +53,8 @@ const getCurrentUser = async (userId: string) => {
     },
     include: {
       gearItems: true,
-      rentalOrders: true,
+      customerOrders: true,
+      providerOrders: true,
     },
   });
 

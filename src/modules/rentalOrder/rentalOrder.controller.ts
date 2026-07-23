@@ -4,6 +4,7 @@ import httpStatus from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { rentalOrdersService } from "./rentalOrder.service";
+import type { TUpdateOrderStatus } from "./rentalOrder.interface";
 
 const createRentalOrder = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -29,6 +30,19 @@ const getMyRentalOrders = catchAsync(
       success: true,
       statusCode: httpStatus.OK,
       message: "Rental orders retrieved successfully.",
+      data: result,
+    });
+  },
+);
+
+const getProviderOrders = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await rentalOrdersService.getProviderOrders(req.user?.id);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Provider orders retrieved successfully.",
       data: result,
     });
   },
@@ -86,6 +100,27 @@ const updateRentalOrder = catchAsync(
   },
 );
 
+const updateOrderStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const statusPayload = req.body as TUpdateOrderStatus;
+
+    const result = await rentalOrdersService.updateOrderStatus(
+      id as string,
+      statusPayload,
+      req.user?.id,
+      req.user?.role,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Order status updated successfully.",
+      data: result,
+    });
+  },
+);
+
 const deleteRentalOrder = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
@@ -110,8 +145,10 @@ const deleteRentalOrder = catchAsync(
 export const rentalOrdersController = {
   createRentalOrder,
   getMyRentalOrders,
+  getProviderOrders,
   getAllRentalOrders,
   getSingleRentalOrder,
   updateRentalOrder,
+  updateOrderStatus,
   deleteRentalOrder,
 };

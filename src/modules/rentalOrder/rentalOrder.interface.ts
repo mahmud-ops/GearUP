@@ -1,4 +1,4 @@
-export interface IRentalOrderPayload {
+export type TCreateRentalOrder = {
   startDate: string;
   endDate: string;
   items: {
@@ -15,3 +15,19 @@ export interface IUpdateRentalOrder {
     quantity: number;
   }[];
 }
+
+export type TUpdateOrderStatus = {
+  status: 'CONFIRMED' | 'PICKEDUP' | 'RETURNED';
+}
+
+export type TRentalOrder = {
+  id: string;
+  customerId: string;
+  providerId: string;
+  startDate: Date;
+  endDate: Date;
+  status: 'CONFIRMED' | 'PICKEDUP' | 'RETURNED';
+  totalAmount: number;
+  createdAt: Date;
+  updatedAt: Date;
+};

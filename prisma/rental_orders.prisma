@@ -2,7 +2,10 @@ model Rental_orders {
   id String @id @default(uuid())
 
   customerId String
-  customer   Users  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer   Users  @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Cascade)
+
+  providerId String
+  provider   Users  @relation("ProviderOrders", fields: [providerId], references: [id], onDelete: Cascade)
 
   startDate DateTime
   endDate   DateTime

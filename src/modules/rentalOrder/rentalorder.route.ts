@@ -19,6 +19,12 @@ router.get(
 );
 
 router.get(
+  "/provider/me",
+  auth(Role.PROVIDER, Role.ADMIN),
+  rentalOrdersController.getProviderOrders,
+);
+
+router.get(
   "/",
   auth(Role.ADMIN),
   rentalOrdersController.getAllRentalOrders,
@@ -28,6 +34,12 @@ router.get(
   "/:id",
   auth(Role.ADMIN, Role.CUSTOMER, Role.PROVIDER),
   rentalOrdersController.getSingleRentalOrder,
+);
+
+router.patch(
+  "/:id/status",
+  auth(Role.PROVIDER, Role.ADMIN),
+  rentalOrdersController.updateOrderStatus,
 );
 
 router.patch(
