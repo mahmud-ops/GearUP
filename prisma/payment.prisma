@@ -8,8 +8,13 @@ enum PaymentStatus {
 model Payment {
   id String @id @default(uuid())
 
+  orderId String
+  order   Rental_orders @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
   providerId String
   provider   Users  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  stripeSessionId String
 
   transactionId String @unique
 

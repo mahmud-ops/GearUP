@@ -12,8 +12,8 @@ model Users {
   gearItems      GearItems[]
   customerOrders Rental_orders[] @relation("CustomerOrders")
   providerOrders Rental_orders[] @relation("ProviderOrders")
-  reviews         Reviews[]
-  payments        Payment[]
+  reviews        Reviews[]
+  payments       Payment[]
 }
 
 enum Role {

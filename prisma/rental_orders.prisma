@@ -17,6 +17,7 @@ model Rental_orders {
   updatedAt        DateTime           @updatedAt
   rentalOrderItems RentalOrderItems[]
   reviews          Reviews[]
+  payments         Payment[]
 }
 
 enum OrderStatus {
