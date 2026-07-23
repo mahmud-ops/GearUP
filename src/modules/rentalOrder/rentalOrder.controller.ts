@@ -73,8 +73,8 @@ const updateRentalOrder = catchAsync(
     const result = await rentalOrdersService.updateRentalOrder(
       id as string,
       req.body,
-      req.user.userId,
-      req.user.role,
+      req.user?.id,
+      req.user?.role,
     );
 
     sendResponse(res, {
@@ -92,15 +92,17 @@ const deleteRentalOrder = catchAsync(
 
     const result = await rentalOrdersService.deleteRentalOrder(
       id as string,
-      req.user.userId,
-      req.user.role,
+      req.user?.id,
+      req.user?.role,
     );
 
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "Rental order deleted successfully.",
-      data: result,
+      data: {
+        "order id": result.id,
+      },
     });
   },
 );

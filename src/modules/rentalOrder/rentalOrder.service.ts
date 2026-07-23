@@ -1,14 +1,9 @@
-import type { GearItems, Role } from "../../../generated/prisma/browser";
+import { Role, type GearItems } from "../../../generated/prisma/browser";
 import { prisma } from "../../lib/prisma";
-
-interface IRentalOrderPayload {
-  startDate: string;
-  endDate: string;
-  items: {
-    gearItemId: string;
-    quantity: number;
-  }[];
-}
+import type {
+  IRentalOrderPayload,
+  IUpdateRentalOrder,
+} from "./rentalOrder.interface";
 
 const createRentalOrder = async (
   payload: IRentalOrderPayload,
@@ -73,7 +68,7 @@ const createRentalOrder = async (
           },
         },
         rentalOrderItems: {
-          include: {
+          select: {
             item: true,
           },
         },
@@ -123,6 +118,13 @@ const getSingleRentalOrder = async (id: string, userId: string, role: Role) => {
     where: {
       id: id,
     },
+    include: {
+      rentalOrderItems: {
+        select: {
+          item: true,
+        },
+      },
+    },
   });
 
   if (role !== "ADMIN" && userId !== order?.customerId) {
@@ -135,15 +137,141 @@ const getSingleRentalOrder = async (id: string, userId: string, role: Role) => {
 
 const updateRentalOrder = async (
   id: string,
-  payload: any,
+  payload: IUpdateRentalOrder,
   userId: string,
-  role: string,
+  role: Role,
 ) => {
-  // TODO
+  // 1. Resolve updated dates.
+  // 2. Calculate the rental duration.
+  // 3. If new items are provided:
+  //    - Validate gear items.
+  //    - Replace existing order items.
+  // 4. Recalculate the total amount.
+
+  const udpatedOrder = await prisma.$transaction(async (tx) => {
+    const rentalOrder = await tx.rental_orders.findUnique({
+      where: { id },
+    });
+
+    if (!rentalOrder) {
+      throw new Error("Rental order not found.");
+    }
+
+    if (role !== Role.ADMIN && userId !== rentalOrder.customerId) {
+      throw new Error("You can't update this rental order.");
+    }
+
+    const startDate = payload.startDate
+      ? new Date(payload.startDate)
+      : rentalOrder.startDate;
+
+    const endDate = payload.endDate
+      ? new Date(payload.endDate)
+      : rentalOrder.endDate;
+
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    const days = Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / millisecondsPerDay,
+    );
+
+    let totalDailyRate = 0;
+
+    const updateData: any = {
+      startDate,
+      endDate,
+    };
+
+    if (payload.items) {
+      const gearItems: GearItems[] = await tx.gearItems.findMany({
+        where: {
+          id: {
+            in: payload.items.map((i) => i.gearItemId),
+          },
+        },
+      });
+
+      for (const item of payload.items) {
+        const gear = gearItems.find((g) => g.id === item.gearItemId);
+        if (!gear) {
+          throw new Error("Gear item not found.");
+        }
+
+        totalDailyRate += Number(gear.dailyRate) * item.quantity;
+      }
+
+      updateData.rentalOrderItems = {
+        deleteMany: {},
+        create: payload.items.map((item) => {
+          const gear = gearItems.find((g) => g.id === item.gearItemId)!;
+
+          return {
+            gearItemId: gear.id,
+            quantity: item.quantity,
+            dailyRate: gear.dailyRate,
+            totalPrice: Number(gear.dailyRate) * item.quantity * days,
+          };
+        }),
+      };
+    } else {
+      const existingItems = await tx.rentalOrderItems.findMany({
+        where: {
+          orderId: id,
+        },
+      });
+
+      for (const item of existingItems) {
+        totalDailyRate += Number(item.dailyRate) * item.quantity;
+      }
+    }
+
+    updateData.totalAmount = totalDailyRate * days;
+
+    return await tx.rental_orders.update({
+      where: {
+        id,
+      },
+      data: updateData,
+      include: {
+        customer: {
+          omit: {
+            password: true,
+          },
+        },
+        rentalOrderItems: {
+          include: {
+            item: true,
+          },
+        },
+      },
+    });
+  });
+
+  return udpatedOrder;
 };
 
 const deleteRentalOrder = async (id: string, userId: string, role: string) => {
-  // TODO
+  // Admin
+  // If user = owner of this order
+
+  const order = await prisma.rental_orders.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!order) throw new Error("Rental order not found");
+
+  if (role !== "ADMIN" && userId !== order.customerId) {
+    throw new Error("You can't delete this rental order.");
+  }
+
+  const deletedOrder = await prisma.rental_orders.delete({
+    where: {
+      id,
+    },
+  });
+
+  return deletedOrder;
 };
 
 export const rentalOrdersService = {
