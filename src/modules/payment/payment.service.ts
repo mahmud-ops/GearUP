@@ -22,19 +22,17 @@ const createCheckoutSession = async (userId: string, orderId: string) => {
     throw new Error("Forbidden! This order can't be accessed");
 
   const session = await stripe.checkout.sessions.create({
-    line_items: [
-      {
-        price_data: {
-          currency: "bdt",
-          product_data: {
-            name: "test gear",
-            description: "stripe integration test",
-          },
-          unit_amount: 20000,
+    line_items: rentalOrder.rentalOrderItems.map((orderItem) => ({
+      price_data: {
+        currency: "bdt",
+        product_data: {
+          name: orderItem.item.name,
+          description: orderItem.item.description,
         },
-        quantity: 1,
+        unit_amount: Number(orderItem.totalPrice) * 100,
       },
-    ],
+      quantity: 1,
+    })),
     mode: "payment",
     payment_method_types: ["card"],
     success_url: `${config.app_url}payment?success=true`,

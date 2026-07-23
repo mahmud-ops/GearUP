@@ -2,9 +2,15 @@ import bcrypt from "bcryptjs";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import type { ICreateUser } from "./user.interface";
+import { Role } from "../../../generated/prisma/enums";
 
 const createUser = async (payload: ICreateUser) => {
   const { name, email, password, role } = payload;
+
+  if (payload.role === "ADMIN")
+    throw new Error(
+      "Admin accounts cannot be created through the registration endpoint.",
+    );
 
   const isUserExist = await prisma.users.findUnique({
     where: {
