@@ -6,6 +6,7 @@ model Rental_orders {
 
   startDate DateTime
   endDate   DateTime
+  status    OrderStatus @default(CONFIRMED)
 
   totalAmount Decimal @db.Decimal(10, 2)
 
@@ -15,4 +16,8 @@ model Rental_orders {
   reviews          Reviews[]
 }
 
-// The thing is that according to the data model, how will it create an order? It will take the customer ID from the authentication request.user. It will take the start date and end date. The total amount will be calculated from the rental order items model. It will take the price from there, then how many items he got, and then it will take the start date and end date, calculate the days between them, and then do some math to calculate the total amount. 
+enum OrderStatus {
+  CONFIRMED
+  PICKEDUP
+  RETURNED
+}
