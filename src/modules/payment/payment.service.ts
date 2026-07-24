@@ -1,3 +1,4 @@
+import type Stripe from "stripe";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { stripe } from "../../lib/stripe";
@@ -40,12 +41,49 @@ const createCheckoutSession = async (userId: string, orderId: string) => {
     metadata: {
       orderId: rentalOrder.id,
       customerId: userId,
+      providerId: rentalOrder.providerId,
     },
   });
 
   return session.url;
 };
 
+const handleWebhook = async (payload: Buffer, signature: string) => {
+  const endpointSecret = config.stripe_webhook_secret;
+
+  const event = stripe.webhooks.constructEvent(
+    payload,
+    signature,
+    endpointSecret as string,
+  );
+
+  switch (event.type) {
+    case "checkout.session.completed":
+      const session: Stripe.Checkout.Session = event.data.object;
+      const sessionId = session.id;
+      const transactionId = session.payment_intent;
+      const userId = session.metadata?.customerId;
+      const orderId = session.metadata?.orderId;
+      const providerId = session.metadata?.providerId;
+      const amount = (Number(session.amount_total) / 100).toFixed(2);
+      const status =
+        session.payment_status === "paid" ? "COMPLETED" : "PENDING";
+      const paidAt = new Date(session.created * 1000);
+
+      await prisma.payment.create({
+        data: {
+          // complete this block
+        }
+      })
+
+      console.log(session);
+      break;
+    default:
+      console.log(`Unhandled event type ${event.type}.`);
+  }
+};
+
 export const paymentService = {
   createCheckoutSession,
+  handleWebhook,
 };
