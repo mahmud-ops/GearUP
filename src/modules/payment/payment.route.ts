@@ -11,7 +11,24 @@ router.post(
   paymentController.createCheckoutSession,
 );
 
-// payment CRUD
-router.get("/",auth(Role.ADMIN),paymentController.getAllPayments);
+router.get(
+  "/my-payments",
+  auth(Role.CUSTOMER, Role.ADMIN),
+  paymentController.getMyPayments,
+);
+
+router.get(
+  "/provider",
+  auth(Role.PROVIDER, Role.ADMIN),
+  paymentController.getProviderPayments,
+);
+
+router.get(
+  "/:paymentId",
+  auth(Role.ADMIN, Role.CUSTOMER, Role.PROVIDER),
+  paymentController.getSinglePayment,
+);
+
+router.get("/", auth(Role.ADMIN), paymentController.getAllPayments);
 
 export const paymentRouter = router;

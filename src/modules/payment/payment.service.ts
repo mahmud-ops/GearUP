@@ -121,8 +121,95 @@ const getAllPayments = async () => {
   return result;
 };
 
+const getMyPayments = async (userId: string) => {
+  const payments = await prisma.payment.findMany({
+    where: { customerId: userId },
+    include: {
+      order: {
+        include: {
+          rentalOrderItems: {
+            include: {
+              item: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                  dailyRate: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return payments;
+};
+
+const getSinglePayment = async (paymentId: string, userId: string, role: string) => {
+  const payment = await prisma.payment.findUnique({
+    where: { id: paymentId },
+    include: {
+      order: {
+        include: {
+          rentalOrderItems: {
+            include: {
+              item: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                  dailyRate: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!payment) throw new Error("Payment not found.");
+
+  if (role !== "ADMIN" && userId !== payment.customerId) {
+    throw new Error("You don't have access to this resource.");
+  }
+
+  return payment;
+};
+
+const getProviderPayments = async (userId: string) => {
+  const payments = await prisma.payment.findMany({
+    where: { providerId: userId },
+    include: {
+      order: {
+        include: {
+          rentalOrderItems: {
+            include: {
+              item: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                  dailyRate: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return payments;
+};
+
 export const paymentService = {
   createCheckoutSession,
   handleWebhook,
   getAllPayments,
+  getMyPayments,
+  getSinglePayment,
+  getProviderPayments,
 };

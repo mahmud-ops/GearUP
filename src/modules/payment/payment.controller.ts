@@ -57,8 +57,50 @@ const getAllPayments = catchAsync(async(req: Request, res: Response, next: NextF
     });
 })
 
+const getMyPayments = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const result = await paymentService.getMyPayments(req.user?.id as string);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpstatus.OK,
+    message: "Your payments fetched successfully.",
+    data: result,
+  });
+});
+
+const getSinglePayment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { paymentId } = req.params;
+
+  const result = await paymentService.getSinglePayment(
+    paymentId as string,
+    req.user?.id as string,
+    req.user?.role as string,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpstatus.OK,
+    message: "Payment fetched successfully.",
+    data: result,
+  });
+});
+
+const getProviderPayments = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const result = await paymentService.getProviderPayments(req.user?.id as string);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpstatus.OK,
+    message: "Provider payments fetched successfully.",
+    data: result,
+  });
+});
+
 export const paymentController = {
   createCheckoutSession,
   handleWebhook,
-  getAllPayments
+  getAllPayments,
+  getMyPayments,
+  getSinglePayment,
+  getProviderPayments,
 };
