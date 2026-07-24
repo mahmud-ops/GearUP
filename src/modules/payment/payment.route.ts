@@ -11,5 +11,7 @@ router.post(
   paymentController.createCheckoutSession,
 );
 
+// payment CRUD
+router.get("/",auth(Role.ADMIN),paymentController.getAllPayments);
 
 export const paymentRouter = router;

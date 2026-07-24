@@ -46,7 +46,19 @@ const handleWebhook = catchAsync(
   },
 );
 
+const getAllPayments = catchAsync(async(req: Request, res: Response, next: NextFunction) => {
+  const result = await paymentService.getAllPayments();
+
+  sendResponse(res, {
+      success: true,
+      statusCode: httpstatus.OK,
+      message: "Fetched all payments successfully.",
+      data: result,
+    });
+})
+
 export const paymentController = {
   createCheckoutSession,
   handleWebhook,
+  getAllPayments
 };

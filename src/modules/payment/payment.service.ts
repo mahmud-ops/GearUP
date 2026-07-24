@@ -116,7 +116,13 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
   }
 };
 
+const getAllPayments = async () => {
+  const result = await prisma.payment.findMany();
+  return result;
+};
+
 export const paymentService = {
   createCheckoutSession,
   handleWebhook,
+  getAllPayments,
 };
