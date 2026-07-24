@@ -74,7 +74,6 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
 
       if (session.payment_status !== "paid") break;
 
-      // Safely extract payment_intent ID (handles both string and object cases)
       const paymentIntentId =
         typeof session.payment_intent === "string"
           ? session.payment_intent
@@ -82,18 +81,32 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
             ? (session.payment_intent as Stripe.PaymentIntent).id
             : null;
 
-      await prisma.$transaction(async (tx) => {
-        await tx.payment.update({
-          where: {
-            stripeSessionId: session.id,
-          },
-          data: {
-            transactionId: paymentIntentId,
-            status: "COMPLETED",
-            paidAt: new Date(),
-          },
-        });
+      console.log(
+        `Processing checkout.session.completed for session: ${session.id}, paymentIntent: ${paymentIntentId}, orderId: ${session.metadata?.orderId}`,
+      );
+
+      await prisma.payment.upsert({
+        where: {
+          stripeSessionId: session.id,
+        },
+        create: {
+          stripeSessionId: session.id,
+          orderId: session.metadata?.orderId || "",
+          customerId: session.metadata?.customerId || "",
+          providerId: session.metadata?.providerId || "",
+          transactionId: paymentIntentId,
+          amount: 0,
+          status: "COMPLETED",
+          paidAt: new Date(),
+        },
+        update: {
+          transactionId: paymentIntentId,
+          status: "COMPLETED",
+          paidAt: new Date(),
+        },
       });
+
+      console.log("Payment updated");
 
       break;
     }
