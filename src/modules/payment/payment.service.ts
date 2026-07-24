@@ -45,6 +45,17 @@ const createCheckoutSession = async (userId: string, orderId: string) => {
     },
   });
 
+  await prisma.payment.create({
+    data: {
+      customerId: userId,
+      orderId: rentalOrder.id,
+      providerId: rentalOrder.providerId,
+      stripeSessionId: session.id,
+      amount: rentalOrder.totalAmount,
+      status: "PENDING",
+    },
+  });
+
   return session.url;
 };
 
@@ -58,33 +69,27 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
   );
 
   switch (event.type) {
-    case "checkout.session.completed":
-      const session: Stripe.Checkout.Session = event.data.object;
-      const sessionId = session.id;
-      const transactionId = session.payment_intent;
-      const customerId = session.metadata?.customerId;
-      const orderId = session.metadata?.orderId;
-      const providerId = session.metadata?.providerId;
-      const amount = (Number(session.amount_total) / 100).toFixed(2);
-      const status =
-        session.payment_status === "paid" ? "COMPLETED" : "PENDING";
-      const paidAt = new Date(session.created * 1000);
+    case "checkout.session.completed": {
+      const session = event.data.object as Stripe.Checkout.Session;
 
-      await prisma.payment.create({
-        data: {
-          customerId: customerId as string,
-          orderId: orderId as string,
-          providerId: providerId as string,
-          stripeSessionId: sessionId as string,
-          transactionId: transactionId as string,
-          amount: Number(amount),
-          status: status,
-          paidAt: paidAt as Date,
-        },
+      if (session.payment_status !== "paid") break;
+
+      await prisma.$transaction(async (tx) => {
+        await tx.payment.update({
+          where: {
+            stripeSessionId: session.id,
+          },
+          data: {
+            transactionId: session.payment_intent as string,
+            status: "COMPLETED",
+            paidAt: new Date(),
+          },
+        });
       });
 
-      console.log(session);
       break;
+    }
+
     default:
       console.log(`Unhandled event type ${event.type}.`);
   }

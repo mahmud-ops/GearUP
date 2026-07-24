@@ -11,13 +11,13 @@ model Payment {
   customerId String
   customer   Users  @relation("PaymentCustomer", fields: [customerId], references: [id], onDelete: Cascade)
 
-  orderId String
+  orderId String @unique
   order   Rental_orders @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   providerId String
   provider   Users  @relation("PaymentProvider", fields: [providerId], references: [id], onDelete: Cascade)
 
-  stripeSessionId String
+  stripeSessionId String @unique
 
   transactionId String? @unique
 
@@ -25,7 +25,7 @@ model Payment {
 
   status PaymentStatus @default(PENDING)
 
-  paidAt DateTime? @default(now())
+  paidAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
