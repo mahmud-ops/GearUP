@@ -9,11 +9,12 @@ model Users {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
 
-  gearItems      GearItems[]
-  customerOrders Rental_orders[] @relation("CustomerOrders")
-  providerOrders Rental_orders[] @relation("ProviderOrders")
-  reviews        Reviews[]
-  payments       Payment[]
+  gearItems        GearItems[]
+  customerOrders   Rental_orders[] @relation("CustomerOrders")
+  providerOrders   Rental_orders[] @relation("ProviderOrders")
+  reviews          Reviews[]
+  customerPayments Payment[]       @relation("PaymentCustomer")
+  providerPayments Payment[]       @relation("PaymentProvider")
 }
 
 enum Role {

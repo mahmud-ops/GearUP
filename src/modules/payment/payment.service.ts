@@ -62,7 +62,7 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
       const session: Stripe.Checkout.Session = event.data.object;
       const sessionId = session.id;
       const transactionId = session.payment_intent;
-      const userId = session.metadata?.customerId;
+      const customerId = session.metadata?.customerId;
       const orderId = session.metadata?.orderId;
       const providerId = session.metadata?.providerId;
       const amount = (Number(session.amount_total) / 100).toFixed(2);
@@ -72,9 +72,16 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
 
       await prisma.payment.create({
         data: {
-          // complete this block
-        }
-      })
+          customerId: customerId as string,
+          orderId: orderId as string,
+          providerId: providerId as string,
+          stripeSessionId: sessionId as string,
+          transactionId: transactionId as string,
+          amount: Number(amount),
+          status: status,
+          paidAt: paidAt as Date,
+        },
+      });
 
       console.log(session);
       break;
