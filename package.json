@@ -4,6 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node dist/server.js",
+    "build": "tsc",
     "stripe:listen": "stripe listen --forward-to localhost:5000/api/payment/webhook",
     "dev": "tsx watch src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -37,6 +39,6 @@
     "stripe": "^22.3.2"
   },
   "prisma": {
-    "seed":"tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   }
 }
