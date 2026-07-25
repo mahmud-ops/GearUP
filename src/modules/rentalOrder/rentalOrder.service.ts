@@ -1,5 +1,6 @@
 import { Role, type GearItems } from "../../../generated/prisma/browser";
 import { prisma } from "../../lib/prisma";
+import AppError from "../../middlewares/appError";
 import type {
   IUpdateRentalOrder,
   TCreateRentalOrder,
@@ -28,14 +29,15 @@ const createRentalOrder = async (
     });
 
     if (gearItems.length === 0) {
-      throw new Error("No valid gear items found.");
+      throw new AppError(400, "No valid gear items found.");
     }
 
-      const firstProviderId = gearItems[0]!.providerId;
+    const firstProviderId = gearItems[0]!.providerId;
 
     for (const gear of gearItems) {
       if (gear.providerId !== firstProviderId) {
-        throw new Error(
+        throw new AppError(
+          500,
           "All gear items in a single order must belong to the same provider.",
         );
       }
@@ -47,7 +49,7 @@ const createRentalOrder = async (
       const gear = gearItems.find((g) => g.id === item.gearItemId);
 
       if (!gear) {
-        throw new Error("Gear item not found.");
+        throw new AppError(404, "Gear item not found.");
       }
 
       totalDailyRate += Number(gear.dailyRate) * item.quantity;
@@ -195,11 +197,7 @@ const getProviderOrders = async (userId: string) => {
   return orders;
 };
 
-const getSingleRentalOrder = async (
-  id: string,
-  userId: string,
-  role: Role,
-) => {
+const getSingleRentalOrder = async (id: string, userId: string, role: Role) => {
   const order = await prisma.rental_orders.findUnique({
     where: {
       id: id,
@@ -227,7 +225,7 @@ const getSingleRentalOrder = async (
   });
 
   if (!order) {
-    throw new Error("Rental order not found.");
+    throw new AppError(404, "Rental order not found.");
   }
 
   if (
@@ -235,7 +233,7 @@ const getSingleRentalOrder = async (
     userId !== order.customerId &&
     userId !== order.providerId
   ) {
-    throw new Error("You don't have access to this resource.");
+    throw new AppError(403, "You don't have access to this resource.");
   }
 
   return order;
@@ -253,11 +251,11 @@ const updateRentalOrder = async (
     });
 
     if (!rentalOrder) {
-      throw new Error("Rental order not found.");
+      throw new AppError(404, "Rental order not found.");
     }
 
     if (role !== Role.ADMIN && userId !== rentalOrder.customerId) {
-      throw new Error("You can't update this rental order.");
+      throw new AppError(403, "You can't update this rental order.");
     }
 
     const startDate = payload.startDate
@@ -290,14 +288,15 @@ const updateRentalOrder = async (
       });
 
       if (gearItems.length === 0) {
-        throw new Error("No valid gear items found.");
+        throw new AppError(400, "No valid gear items found.");
       }
 
-    const firstProviderId = gearItems[0]!.providerId;
+      const firstProviderId = gearItems[0]!.providerId;
 
       for (const gear of gearItems) {
         if (gear.providerId !== firstProviderId) {
-          throw new Error(
+          throw new AppError(
+            500,
             "All gear items in a single order must belong to the same provider.",
           );
         }
@@ -306,7 +305,7 @@ const updateRentalOrder = async (
       for (const item of payload.items) {
         const gear = gearItems.find((g) => g.id === item.gearItemId);
         if (!gear) {
-          throw new Error("Gear item not found.");
+          throw new AppError(404, "Gear item not found.");
         }
 
         totalDailyRate += Number(gear.dailyRate) * item.quantity;
@@ -384,11 +383,11 @@ const updateOrderStatus = async (
   });
 
   if (!order) {
-    throw new Error("Rental order not found.");
+    throw new AppError(404, "Rental order not found.");
   }
 
   if (role !== Role.ADMIN && userId !== order.providerId) {
-    throw new Error("You can't update this order status.");
+    throw new AppError(403, "You can't update this order status.");
   }
 
   const currentStatus = order.status;
@@ -408,7 +407,8 @@ const updateOrderStatus = async (
     });
   }
 
-  throw new Error(
+  throw new AppError(
+    400,  
     `Invalid status transition from ${currentStatus} to ${nextStatus}.`,
   );
 };
@@ -420,10 +420,10 @@ const deleteRentalOrder = async (id: string, userId: string, role: string) => {
     },
   });
 
-  if (!order) throw new Error("Rental order not found");
+  if (!order) throw new AppError(404, "Rental order not found");
 
   if (role !== "ADMIN" && userId !== order.customerId) {
-    throw new Error("You can't delete this rental order.");
+    throw new AppError(403, "You can't delete this rental order.");
   }
 
   const deletedOrder = await prisma.rental_orders.delete({

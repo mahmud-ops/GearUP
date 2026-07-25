@@ -1,3 +1,4 @@
+import AppError from "../../middlewares/appError";
 import bcrypt from "bcryptjs";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
@@ -8,7 +9,8 @@ const createUser = async (payload: ICreateUser) => {
   const { name, email, password, role } = payload;
 
   if (payload.role === "ADMIN")
-    throw new Error(
+    throw new AppError(
+      403,
       "Admin accounts cannot be created through the registration endpoint.",
     );
 
@@ -19,7 +21,7 @@ const createUser = async (payload: ICreateUser) => {
   });
 
   if (isUserExist) {
-    throw new Error("User already exists");
+    throw new AppError(409, "User already exists");
   }
 
   const hashedPassword = await bcrypt.hash(
@@ -65,7 +67,7 @@ const getCurrentUser = async (userId: string) => {
   });
 
   if (!user) {
-    throw new Error("User not found.");
+    throw new AppError(404, "User not found.");
   }
 
   return user;
@@ -95,7 +97,7 @@ const updateCurrentUser = async (
   });
 
   if (!user) {
-    throw new Error("User not found.");
+    throw new AppError(404, "User not found.");
   }
 
   const updatedUser = await prisma.users.update({
@@ -122,7 +124,7 @@ const getUserById = async (userId: string) => {
   });
 
   if (!user) {
-    throw new Error("User not found.");
+    throw new AppError(404, "User not found.");
   }
 
   return user;
@@ -136,7 +138,7 @@ const suspendUser = async (userId: string) => {
   });
 
   if (!user) {
-    throw new Error("User not found.");
+    throw new AppError(404, "User not found.");
   }
 
   const updatedUser = await prisma.users.update({

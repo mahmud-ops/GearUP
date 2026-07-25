@@ -1,3 +1,4 @@
+import AppError from "../../middlewares/appError";
 import { prisma } from "../../lib/prisma";
 
 import slugify from "slugify";
@@ -13,7 +14,7 @@ const createCategory = async (payload: {
   });
 
   if (isCategoryExist) {
-    throw new Error("Category already exists.");
+    throw new AppError(409, "Category already exists.");
   }
 
   const category = await prisma.categories.create({

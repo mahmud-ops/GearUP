@@ -1,5 +1,6 @@
 import { Role } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
+import AppError from "../../middlewares/appError";
 
 const createGearItem = async (
   payload: any,
@@ -10,7 +11,7 @@ const createGearItem = async (
 
   if (role === Role.ADMIN) {
     if (!payload.providerId) {
-      throw new Error("Provider ID is required.");
+      throw new AppError(400, "Provider ID is required.");
     }
 
     providerId = payload.providerId;
@@ -69,7 +70,7 @@ const updateGearItem = async (
   });
 
   if (role !== Role.ADMIN && gearItem.providerId !== userId) {
-    throw new Error("You are not authorized to update this gear item.");
+    throw new AppError(403, "You are not authorized to update this gear item.");
   }
 
   const result = await prisma.gearItems.update({
@@ -94,7 +95,7 @@ const deleteGearItem = async (
   });
 
   if (role !== Role.ADMIN && gearItem.providerId !== userId) {
-    throw new Error("You are not authorized to delete this gear item.");
+    throw new AppError(403, "You are not authorized to delete this gear item.");
   }
 
   const result = await prisma.gearItems.delete({

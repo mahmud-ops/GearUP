@@ -1,3 +1,4 @@
+import AppError from "./appError";
 import type { NextFunction, Request, Response } from "express";
 import httpstatus from "http-status";
 import type { Role } from "../../generated/prisma/enums";
@@ -24,7 +25,7 @@ export const auth = (...requiredRoles: Role[]) => {
         : req.headers.authorization;
 
     if (!accessToken) {
-      throw new Error("Invalid token.");
+      throw new AppError(401, "Invalid token.");
     }
 
     const verifiedToken = jwtUtils.verifyToken(
@@ -32,7 +33,7 @@ export const auth = (...requiredRoles: Role[]) => {
       config.jwt_access_secret as string,
     );
 
-    if (typeof verifiedToken === "string") throw new Error(verifiedToken);
+    if (typeof verifiedToken === "string") throw new AppError(401, verifiedToken);
 
     const { id, name, email, role } = verifiedToken;
 
@@ -51,9 +52,9 @@ export const auth = (...requiredRoles: Role[]) => {
       },
     });
 
-    if (!user) throw new Error("User not found , please log in.");
+    if (!user) throw new AppError(404, "User not found , please log in.");
     if (user.status === "SUSPENDED")
-      throw new Error("Your account is suspended");
+      throw new AppError(403, "Your account is suspended");
 
     req.user = {
       id: user.id,

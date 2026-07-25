@@ -1,3 +1,4 @@
+import AppError from "../../middlewares/appError";
 import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
@@ -36,7 +37,7 @@ const getSingleCategory = catchAsync(async (req: Request, res: Response, next: N
   const { slug } = req.params;
 
   if (typeof slug !== "string") {
-    throw new Error("Invalid slug");
+    throw new AppError(400, "Invalid slug");
   }
 
   const result = await categoryService.getSingleCategory(slug);
@@ -52,7 +53,7 @@ const getSingleCategory = catchAsync(async (req: Request, res: Response, next: N
 const updateCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { slug } = req.params;
 
-  if (typeof slug !== "string") throw new Error("Invalid slug");
+  if (typeof slug !== "string") throw new AppError(400, "Invalid slug");
 
   const result = await categoryService.updateCategory(slug, req.body);
 
@@ -67,7 +68,7 @@ const updateCategory = catchAsync(async (req: Request, res: Response, next: Next
 const deleteCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { slug } = req.params;
 
-  if (typeof slug !== "string") throw new Error("Invalid slug");
+  if (typeof slug !== "string") throw new AppError(400, "Invalid slug");
 
   const result = await categoryService.deleteCategory(slug);
 

@@ -1,3 +1,4 @@
+import AppError from "../../middlewares/appError";
 import type { NextFunction, Request, Response } from "express";
 import { userService } from "./user.service";
 import { sendResponse } from "../../utils/sendResponse";
@@ -65,7 +66,7 @@ const getUserById = catchAsync(
     const { userId } = req.params;
 
     if (typeof userId !== "string") {
-      throw new Error("Invalid user id.");
+      throw new AppError(400, "Invalid user id.");
     }
 
     const result = await userService.getUserById(userId);
@@ -84,7 +85,7 @@ const suspendUser = catchAsync(
     const { userId } = req.params;
 
     if (typeof userId !== "string") {
-      throw new Error("Invalid user id.");
+      throw new AppError(400, "Invalid user id.");
     }
 
     const result = await userService.suspendUser(userId);

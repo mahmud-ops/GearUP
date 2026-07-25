@@ -1,3 +1,4 @@
+import AppError from "../../middlewares/appError";
 import type { Role } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import type { ICreateReview, IUpdateReview } from "./review.interface";
@@ -26,10 +27,10 @@ const createReview = async (
     },
   });
 
-  if (!rentalOrder) throw new Error("Order not found");
+  if (!rentalOrder) throw new AppError(404, "Order not found");
 
   if (rentalOrder.status !== "RETURNED") {
-    throw new Error("You can only review this order after it is returned.");
+    throw new AppError(400, "You can only review this order after it is returned.");
   }
 
   const isItemExist = rentalOrder.rentalOrderItems.some(
@@ -37,13 +38,13 @@ const createReview = async (
   );
 
   if (!isItemExist)
-    throw new Error("One or more items does not exist in this order.");
+    throw new AppError(400, "One or more items does not exist in this order.");
 
   if (userId !== rentalOrder.customerId)
-    throw new Error("You can't access this order.");
+    throw new AppError(403, "You can't access this order.");
 
   if (payload.rating > 5 && payload.rating < 0)
-    throw new Error("Rating must be within a valid range (0–5)");
+    throw new AppError(400, "Rating must be within a valid range (0–5)");
 
   const result = await prisma.reviews.create({
     data: {
@@ -188,10 +189,10 @@ const updateReview = async (
     where: { id },
   });
 
-  if (!review) throw new Error("Review not found.");
+  if (!review) throw new AppError(404, "Review not found.");
 
   if (userId !== review.customerId) {
-    throw new Error("You can't update this review.");
+    throw new AppError(403, "You can't update this review.");
   }
 
   const updatedReview = await prisma.reviews.update({
@@ -230,10 +231,10 @@ const deleteReview = async (id: string, userId: string, role: Role) => {
     where: { id },
   });
 
-  if (!review) throw new Error("Review not found.");
+  if (!review) throw new AppError(404, "Review not found.");
 
   if (role !== "ADMIN" && userId !== review.customerId) {
-    throw new Error("You can't delete this review.");
+    throw new AppError(403, "You can't delete this review.");
   }
 
   const result = await prisma.reviews.delete({

@@ -1,3 +1,4 @@
+import AppError from "../../middlewares/appError";
 import type Stripe from "stripe";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
@@ -17,10 +18,10 @@ const createCheckoutSession = async (userId: string, orderId: string) => {
     },
   });
 
-  if (!rentalOrder) throw new Error("Order not found.");
+  if (!rentalOrder) throw new AppError(404, "Order not found.");
 
   if (rentalOrder.customerId !== userId)
-    throw new Error("Forbidden! This order can't be accessed");
+    throw new AppError(403, "Forbidden! This order can't be accessed");
 
   const session = await stripe.checkout.sessions.create({
     line_items: rentalOrder.rentalOrderItems.map((orderItem) => ({
@@ -170,10 +171,10 @@ const getSinglePayment = async (paymentId: string, userId: string, role: string)
     },
   });
 
-  if (!payment) throw new Error("Payment not found.");
+  if (!payment) throw new AppError(404, "Payment not found.");
 
   if (role !== "ADMIN" && userId !== payment.customerId) {
-    throw new Error("You don't have access to this resource.");
+    throw new AppError(403, "You don't have access to this resource.");
   }
 
   return payment;

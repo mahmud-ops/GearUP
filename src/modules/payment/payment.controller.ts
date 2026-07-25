@@ -1,3 +1,4 @@
+import AppError from "../../middlewares/appError";
 import type { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -11,7 +12,7 @@ const createCheckoutSession = catchAsync(
     const userId = req.user?.id;
     const { orderId } = req.params;
 
-    if (typeof orderId !== "string") throw new Error("Invalid order id");
+    if (typeof orderId !== "string") throw new AppError(400, "Invalid order id");
 
     const result = await paymentService.createCheckoutSession(userId, orderId);
     sendResponse(res, {

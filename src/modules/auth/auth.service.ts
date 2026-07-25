@@ -1,3 +1,4 @@
+import AppError from "../../middlewares/appError";
 import bcrypt from "bcryptjs";
 import { prisma } from "../../lib/prisma";
 import config from "../../config";
@@ -19,13 +20,13 @@ const loginUser = async (payload: ILoginPayload) => {
   });
 
   if (!user) {
-    throw new Error("User doesn't exist, please register.");
+    throw new AppError(404, "User doesn't exist, please register.");
   }
 
   const matchPassword = await bcrypt.compare(password, user.password);
 
   if (!matchPassword) {
-    throw new Error("Incorrect password");
+    throw new AppError(401, "Incorrect password");
   }
 
   const jwtPayload = {
