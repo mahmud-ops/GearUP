@@ -8,6 +8,7 @@ import { paymentRouter } from "./modules/payment/payment.route";
 import { rentalOrdersRouter } from "./modules/rentalOrder/rentalorder.route";
 import { userRouter } from "./modules/user/user.route";
 import { paymentController } from "./modules/payment/payment.controller";
+import { reviewRouter } from "./modules/review/review.route";
 
 const app: Application = express();
 
@@ -30,6 +31,7 @@ app.use("/api/categories", categoryRouter);
 app.use("/api/gear_items", gearItemsRouter);
 app.use("/api/rental_orders", rentalOrdersRouter);
 app.use("/api/payment", paymentRouter);
+app.use("/api/review", reviewRouter);
 
 //error handlers
 app.use(globalErrorHandler);
