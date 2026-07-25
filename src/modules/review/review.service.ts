@@ -221,10 +221,29 @@ const updateReview = async (
   return updatedReview;
 };
 
+const deleteReview = async (id: string, userId: string, role: Role) => {
+  const review = await prisma.reviews.findUnique({
+    where: { id },
+  });
+
+  if (!review) throw new Error("Review not found.");
+
+  if (role !== "ADMIN" && userId !== review.customerId) {
+    throw new Error("You can't delete this review.");
+  }
+
+  const result = await prisma.reviews.delete({
+    where: { id },
+  });
+
+  return result;
+};
+
 export const reviewService = {
   createReview,
   getAllReview,
   getMyReview,
   getReviewById,
   updateReview,
+  deleteReview,
 };
