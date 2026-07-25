@@ -35,5 +35,8 @@
     "pg": "^8.22.0",
     "slugify": "^1.6.9",
     "stripe": "^22.3.2"
+  },
+  "prisma": {
+    "seed":"tsx prisma/seed.ts"
   }
 }
