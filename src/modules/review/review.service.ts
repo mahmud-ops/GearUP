@@ -38,7 +38,8 @@ const createReview = async (
   if (userId !== rentalOrder.customerId)
     throw new Error("You can't access this order.");
 
-  if(payload.rating > 5 && payload.rating < 0) throw new Error("Rating must be within a valid range (1–5)")
+  if (payload.rating > 5 && payload.rating < 0)
+    throw new Error("Rating must be within a valid range (0–5)");
 
   const result = await prisma.reviews.create({
     data: {
@@ -53,6 +54,12 @@ const createReview = async (
   return result;
 };
 
+const getAllReview = async () => {
+  const result = await prisma.reviews.findMany();
+  return result;
+};
+
 export const reviewService = {
   createReview,
+  getAllReview,
 };

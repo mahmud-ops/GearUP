@@ -11,4 +11,6 @@ router.post(
   reviewController.createReview,
 );
 
+router.get("/", auth(Role.ADMIN), reviewController.getAllReview);
+
 export const reviewRouter = router;
