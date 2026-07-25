@@ -82,10 +82,6 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
             ? (session.payment_intent as Stripe.PaymentIntent).id
             : null;
 
-      console.log(
-        `Processing checkout.session.completed for session: ${session.id}, paymentIntent: ${paymentIntentId}, orderId: ${session.metadata?.orderId}`,
-      );
-
       await prisma.payment.upsert({
         where: {
           stripeSessionId: session.id,
@@ -106,9 +102,6 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
           paidAt: new Date(),
         },
       });
-
-      console.log("Payment updated");
-
       break;
     }
 
@@ -148,7 +141,11 @@ const getMyPayments = async (userId: string) => {
   return payments;
 };
 
-const getSinglePayment = async (paymentId: string, userId: string, role: string) => {
+const getSinglePayment = async (
+  paymentId: string,
+  userId: string,
+  role: string,
+) => {
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
     include: {
