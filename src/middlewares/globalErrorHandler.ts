@@ -1,5 +1,7 @@
-import { type NextFunction, type Request, type Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
+import AppError from "./appError";
+import config from "../config";
 
 export const globalErrorHandler = (
   error: any,
@@ -7,12 +9,18 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  console.log(error.stack);
+  let statusCode: number = httpStatus.INTERNAL_SERVER_ERROR;
+  let message = "Something went wrong";
 
-  res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+  if (error instanceof AppError) {
+    statusCode = error.statusCode;
+    message = error.message;
+  }
+
+  res.status(statusCode).json({
     success: false,
-    statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-    message: error.message,
-    data: error.stack,
+    statusCode,
+    message,
+    stack: (config.node_env as string) ? error.stack : undefined,
   });
 };
