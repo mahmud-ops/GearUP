@@ -28,6 +28,10 @@ const createReview = async (
 
   if (!rentalOrder) throw new Error("Order not found");
 
+  if (rentalOrder.status !== "RETURNED") {
+    throw new Error("You can only review this order after it is returned.");
+  }
+
   const isItemExist = rentalOrder.rentalOrderItems.some(
     (i) => i.id === payload.gearItemId,
   );
