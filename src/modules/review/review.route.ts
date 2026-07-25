@@ -13,4 +13,18 @@ router.post(
 
 router.get("/", auth(Role.ADMIN), reviewController.getAllReview);
 
+router.get(
+  "/my-reviews",
+  auth(Role.ADMIN, Role.CUSTOMER, Role.PROVIDER),
+  reviewController.getMyReview,
+);
+
+router.get("/:id", auth(Role.ADMIN), reviewController.getReviewById);
+
+router.patch(
+  "/:id",
+  auth(Role.CUSTOMER),
+  reviewController.updateReview,
+);
+
 export const reviewRouter = router;
