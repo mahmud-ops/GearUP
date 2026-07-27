@@ -1,4 +1,10 @@
-import express, { urlencoded, type Application } from "express";
+import express, {
+  urlencoded,
+  type Application,
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
 import cookieParser from "cookie-parser";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 import { authRouter } from "./modules/auth/auth.route";
@@ -9,6 +15,9 @@ import { rentalOrdersRouter } from "./modules/rentalOrder/rentalorder.route";
 import { userRouter } from "./modules/user/user.route";
 import { paymentController } from "./modules/payment/payment.controller";
 import { reviewRouter } from "./modules/review/review.route";
+import { catchAsync } from "./utils/catchAsync";
+import { sendResponse } from "./utils/sendResponse";
+import httpstatus from "http-status";
 
 const app: Application = express();
 
@@ -23,6 +32,21 @@ app.post(
 // predefined middlewares
 app.use(express.json());
 app.use(urlencoded({ extended: true }));
+
+app.get(
+  "/",
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    sendResponse(res, {
+      success: true,
+      statusCode: httpstatus.OK,
+      message: "Hello world.",
+      data: {
+        name: "Gear up backend API",
+        author: "Abdullah Al Mahmud"
+      }
+    });
+  }),
+);
 
 // routes
 app.use("/api/users", userRouter);
