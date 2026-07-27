@@ -18,10 +18,18 @@ import { reviewRouter } from "./modules/review/review.route";
 import { catchAsync } from "./utils/catchAsync";
 import { sendResponse } from "./utils/sendResponse";
 import httpstatus from "http-status";
+import cors from 'cors'
 
 const app: Application = express();
 
 app.use(cookieParser());
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", // or your frontend URL
+    credentials: true,
+  })
+);
 
 app.post(
   "/api/payment/webhook",
