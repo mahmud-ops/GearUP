@@ -34,7 +34,7 @@ const createReview = async (
   }
 
   const isItemExist = rentalOrder.rentalOrderItems.some(
-    (i) => i.id === payload.gearItemId,
+    (i) => i.item.id === payload.gearItemId,
   );
 
   if (!isItemExist)
