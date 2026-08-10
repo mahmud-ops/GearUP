@@ -95,6 +95,7 @@ const createRentalOrder = async (
           select: {
             item: {
               select: {
+                id: true,
                 name: true,
                 image: true,
                 dailyRate: true,
@@ -127,6 +128,7 @@ const getMyRentalOrders = async (userId: string) => {
         select: {
           item: {
             select: {
+              id: true,
               name: true,
               image: true,
               dailyRate: true,
@@ -183,6 +185,7 @@ const getProviderOrders = async (userId: string) => {
         select: {
           item: {
             select: {
+              id: true,
               name: true,
               image: true,
               dailyRate: true,
