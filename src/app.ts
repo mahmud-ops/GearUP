@@ -26,7 +26,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // or your frontend URL
+    origin: "https://gearup-kappa.vercel.app", // frontend URL
     credentials: true,
   })
 );
