@@ -65,6 +65,21 @@ const getReviewById = catchAsync(
   },
 );
 
+const getReviewByGearId = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await reviewService.getReviewByGearId(
+      req.params.gearItemId as string,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpstatus.OK,
+      message: "Fetched reviews by gear item successfully.",
+      data: result,
+    });
+  },
+);
+
 const updateReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result = await reviewService.updateReview(
@@ -104,6 +119,7 @@ export const reviewController = {
   getAllReview,
   getMyReview,
   getReviewById,
+  getReviewByGearId,
   updateReview,
   deleteReview,
 };

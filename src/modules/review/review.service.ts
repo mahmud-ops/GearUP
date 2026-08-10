@@ -180,6 +180,36 @@ const getReviewById = async (id: string) => {
   return result;
 };
 
+const getReviewByGearId = async (gearItemId: string) => {
+  const result = await prisma.reviews.findMany({
+    where: { gearItemId },
+    include: {
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      gearItem: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+      order: {
+        select: {
+          id: true,
+          startDate: true,
+          endDate: true,
+        },
+      },
+    },
+  });
+  return result;
+};
+
 const updateReview = async (
   id: string,
   payload: IUpdateReview,
@@ -249,6 +279,7 @@ export const reviewService = {
   getAllReview,
   getMyReview,
   getReviewById,
+  getReviewByGearId,
   updateReview,
   deleteReview,
 };

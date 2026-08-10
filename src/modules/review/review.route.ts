@@ -19,6 +19,11 @@ router.get(
   reviewController.getMyReview,
 );
 
+router.get(
+  "/gear/:gearItemId",
+  reviewController.getReviewByGearId,
+);
+
 router.get("/:id", auth(Role.ADMIN), reviewController.getReviewById);
 
 router.patch(
